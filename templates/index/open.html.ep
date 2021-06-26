@@ -1,0 +1,8 @@
+% layout 'standard';
+% title 'Welcome to Mojo Chat';
+<h1><%= title %></h1>
+<p>Please choose a username:</p>
+%= form_for 'login' => begin
+  %= input_tag 'username'
+  %= submit_button
+% end

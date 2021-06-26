@@ -1,0 +1,35 @@
+% layout 'standard';
+% title 'Mojo Chat';
+<p>
+  %= session('username') . ':'
+  <input type="text" id="message"/>
+  <button onclick="wssend()">Send</button>
+</p>
+<div id="log"></div>
+%= javascript begin
+  var ws;
+  function wssend () {
+    var text = $('#message').val();
+    ws.send(text);
+    $('#message').val('');
+  }
+  $(function(){
+    ws = new WebSocket( '<%= url_for('stream')->to_abs %>' );
+    ws.onmessage = function (event) {
+      $('#log').prepend('<p>' + event.data + '</p>');
+    };
+    ws.onerror = function(evt) {
+    	$('#log').prepend('<p> Error: ' + evt.data + '</p>');
+    	//onError(evt)
+    };
+
+    ws.onopen = function(evt) { heartbeat(evt) };
+
+    function heartbeat (evt) {
+        if (!ws) return;
+        if (ws.readyState !== 1) return;
+        ws.send("heartbeat");
+        setTimeout(heartbeat, 10000);
+    };
+  });
+% end

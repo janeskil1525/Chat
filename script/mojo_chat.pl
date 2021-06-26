@@ -2,6 +2,7 @@
 
 use Mojolicious::Lite;
 
+@ARGV = qw(daemon --listen http://*:3029);
 # storage
 my $clients = {};
 
@@ -40,7 +41,7 @@ any '/chat' => sub {
 
 websocket '/stream' => sub {
 	my $self = shift;
-	Mojo::IOLoop->stream($self->tx->connection)->timeout(1200);
+	Mojo::IOLoop->stream($self->tx->connection)->timeout(12000);
 
 	my $username = $self->session('username');
 	$self->add_client( $username );
@@ -103,6 +104,10 @@ __DATA__
     ws = new WebSocket( '<%= url_for('stream')->to_abs %>' );
     ws.onmessage = function (event) {
       $('#log').prepend('<p>' + event.data + '</p>');
+    };
+    ws.onerror = function(evt) {
+    	console.log("WS Error" + evt.data);
+    	//onError(evt)
     };
   });
 % end
