@@ -1,10 +1,15 @@
 package Chat::Controller::Chatter;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+use Data::Dumper;
+
 my $clients = {};
 sub chat ($self) {
 
-    $self->redirect_to('/') unless $self->session('username');
+
+    #say "chat" . "'" . $self->session('username') . "'";
+    #$self->redirect_to('/') unless $self->session('username');
+    $self->session( 'username' => "Test");
     $self->render('layouts/chat');
 }
 

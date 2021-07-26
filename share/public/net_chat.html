@@ -30,10 +30,10 @@
     font-weight: bold;
     color: #ccc;
   }
-  </style>
+</style>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <title>Title</title>
 </head>
 <body>
 <div id="chatContainer">
@@ -51,17 +51,17 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
-var webSocket;
+  var webSocket;
 
   function connectWsChat(){
     try {
-      var host = 'ws://192.168.1.108:8082/';
+      var host = 'ws://chat.venditabant.net/chat/';
       webSocket = new WebSocket( host );
       logWsChatMessage( '<p class="event">Socket status: ' +
-      webSocket.readyState + '</p>' );
+              webSocket.readyState + '</p>' );
       webSocket.onopen = function() {
-      logWsChatMessage( '<p class="event">Socket status: ' +
-      webSocket.readyState + ' (open)</p>' );
+        logWsChatMessage( '<p class="event">Socket status: ' +
+                webSocket.readyState + ' (open)</p>' );
         $( '#chatButton' ).text( 'Disconnect' );
       }
       webSocket.onmessage = function( msg ) {
@@ -69,8 +69,8 @@ var webSocket;
       }
       webSocket.onclose = function() {
         logWsChatMessage( '<p class="event">Socket status: ' +
-        webSocket.readyState + ' (closed)</p>' );
-          $( '#chatButton' ).text( 'Connect' );
+                webSocket.readyState + ' (closed)</p>' );
+        $( '#chatButton' ).text( 'Connect' );
       }
     }catch( exception ) {
       logWsChatMessage( '<p>Error ' + exception + '</p>' );
@@ -78,10 +78,10 @@ var webSocket;
   }
 
   function isConnectedWsChat() {
-  if( webSocket && webSocket.readyState==1 ) {
-    $( '#chatButton' ).text( 'Disconnect' );
-    return 1;
-  } else {
+    if( webSocket && webSocket.readyState==1 ) {
+      $( '#chatButton' ).text( 'Disconnect' );
+      return 1;
+    } else {
       $( '#chatButton' ).text( 'Connect' );
       return 0;
     }
@@ -91,13 +91,13 @@ var webSocket;
     if( isConnectedWsChat() ) {
       var chatUser = $( '#chatUser' ).val();
       var chatText = $( '#chatText' ).val();
-        if( chatUser=='' || chatText=='' ){
-          logWsChatMessage(
-          '<p class="warning">Please enter a nickname and message</p>' );
-            return;
-          }
+      if( chatUser=='' || chatText=='' ){
+        logWsChatMessage(
+                '<p class="warning">Please enter a nickname and message</p>' );
+        return;
+      }
       try{
-          webSocket.send( chatUser + ': ' + chatText );
+        webSocket.send( chatUser + ': ' + chatText );
         //logWsChatMessage( '<p class="event">Sent: ' + chatText + '</p>' )
       } catch( exception ){
         logWsChatMessage( '<p class="warning"> Error: ' + exception + '</p>' );
@@ -118,33 +118,33 @@ var webSocket;
       $( '#chatInput').fadeOut( 'fast' );
 
       $( '<p>Oh no, you need a browser that supports WebSockets.</p>' )
-    .appendTo( '#chatContainer' );
+              .appendTo( '#chatContainer' );
     } else {
       connectWsChat();
-      }
+    }
 
     $( '#chatText' ).keypress( function( event ) {
-        if( event.keyCode == '13' ) {
-          sendWsChat();
-        }
+      if( event.keyCode == '13' ) {
+        sendWsChat();
+      }
     });
 
     $( '#chatButton' ).click( function() {
-    if( webSocket && webSocket.readyState==1 ) {
-      webSocket.close();
-      $( this ).text( 'Connect' );
-    } else {
-      //webSocket.open();
-      connectWsChat();
+      if( webSocket && webSocket.readyState==1 ) {
+        webSocket.close(4001,'Kalle');
+        $( this ).text( 'Connect' );
+      } else {
+        //webSocket.open();
+        connectWsChat();
         $( this ).text( 'Disconnect' );
       }
     });
 
     $( window ).on( 'unload', function() {
       if( isConnectedWsChat() ) {
-        webSocket.close();
+        webSocket.close(4001,'Kalle');
       }
     });
 
   });
-  </script>
+</script>

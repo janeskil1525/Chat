@@ -84,7 +84,7 @@ __DATA__
   %= input_tag 'username'
   %= submit_button
 % end
-@@ chat.html.ep
+@@ chattt.html.ep
 % layout 'standard';
 % title 'Mojo Chat';
 <p>

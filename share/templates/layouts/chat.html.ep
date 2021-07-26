@@ -1,0 +1,114 @@
+% layout 'standard';
+% title 'Mojo Chat';
+
+<div id="chatContainer">
+    <div id="chatLog"></div>
+    <div id="chatInput">
+        <p>Web chat - enter nickname & message, and hit the enter key:</p>
+        <input id="chatUser" type="text" placeholder="nickname" />:
+        <input id="chatText" type="text" placeholder="message" />
+        <button id="chatButton">Disconnect</button>
+    </div>
+</div>
+
+%= javascript begin
+
+document.cookie = "username=John Doe; expires=Thu, 18 Dec 2022 12:00:00 UTC";
+var webSocket;
+
+function connectWsChat(){
+    try {
+        var host = 'ws://chat.venditabant.net/chat/';
+        webSocket = new WebSocket( host );
+        logWsChatMessage( '<p class="event">Socket status: ' +
+            webSocket.readyState + '</p>' );
+        webSocket.onopen = function() {
+            logWsChatMessage( '<p class="event">Socket status: ' +
+                webSocket.readyState + ' (open)</p>' );
+            $( '#chatButton' ).text( 'Disconnect' );
+        }
+        webSocket.onmessage = function( msg ) {
+            logWsChatMessage( '<p class="message">' + msg.data + '</p>' );
+        }
+        webSocket.onclose = function() {
+            logWsChatMessage( '<p class="event">Socket status: ' +
+                webSocket.readyState + ' (closed)</p>' );
+            $( '#chatButton' ).text( 'Connect' );
+        }
+    }catch( exception ) {
+        logWsChatMessage( '<p>Error ' + exception + '</p>' );
+    }
+}
+
+function isConnectedWsChat() {
+    if( webSocket && webSocket.readyState==1 ) {
+        $( '#chatButton' ).text( 'Disconnect' );
+        return 1;
+    } else {
+        $( '#chatButton' ).text( 'Connect' );
+        return 0;
+    }
+}
+
+function sendWsChat() {
+    if( isConnectedWsChat() ) {
+        var chatUser = $( '#chatUser' ).val();
+        var chatText = $( '#chatText' ).val();
+        if( chatUser=='' || chatText=='' ){
+        logWsChatMessage(
+            '<p class="warning">Please enter a nickname and message</p>' );
+        return;
+        }
+        try{
+            webSocket.send( chatUser + ': ' + chatText );
+            //logWsChatMessage( '<p class="event">Sent: ' + chatText + '</p>' )
+        } catch( exception ){
+            logWsChatMessage( '<p class="warning"> Error: ' + exception + '</p>' );
+        }
+        $( '#chatText' ).val( '' );
+    }
+}
+
+function logWsChatMessage(msg) {
+    var chatLog = $( '#chatLog' );
+    chatLog.append( '<p>' + msg + '</p>' );
+    chatLog.scrollTop( chatLog.prop( 'scrollHeight' ) );
+}
+
+$(document).ready( function() {
+
+    if( !( 'WebSocket' in window ) ) {
+    $( '#chatInput').fadeOut( 'fast' );
+
+    $( '<p>Oh no, you need a browser that supports WebSockets.</p>' )
+    .appendTo( '#chatContainer' );
+    } else {
+        connectWsChat();
+    }
+
+    $( '#chatText' ).keypress( function( event ) {
+        if( event.keyCode == '13' ) {
+            sendWsChat();
+        }
+    });
+
+    $( '#chatButton' ).click( function() {
+        if( webSocket && webSocket.readyState==1 ) {
+            webSocket.close(4001,'Kalle');
+            $( this ).text( 'Connect' );
+        } else {
+        //webSocket.open();
+            connectWsChat();
+            $( this ).text( 'Disconnect' );
+        }
+    });
+
+    $( window ).on( 'unload', function() {
+        if( isConnectedWsChat() ) {
+            webSocket.close(4001,'Kalle');
+        }
+    });
+
+});
+
+% end
